@@ -1,6 +1,7 @@
-use ray_trace::vector;
+use ray_trace::Vector3;
+use ray_trace::Vector;
 
 fn main() {
-    let vec = vector::Vec3{x: 1.1, y: 1.2, z: 1.3};
-    println!("{}", vec.length());
+    let vec = Vector3{x: 1.0, y: 1.0, z: 1.0};
+    println!("{}", vec.magnitude());
 }
