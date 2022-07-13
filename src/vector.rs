@@ -227,3 +227,8 @@ impl Vector for Vector3 {
         -2.0 * self.dot(&normal) * normal + self
     }
 }
+
+
+pub fn unit_vector(v: Vector3) -> Vector3 {
+    v / v.magnitude()
+}
