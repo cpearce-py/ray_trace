@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::io::Write;
 use std::fs::File;
-use std::ops::{Add, Div, Mul, MulAssign, Sub};
+use std::ops::{Add, Mul};
 
 #[derive(Debug)]
 pub struct RGB{
