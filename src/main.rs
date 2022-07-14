@@ -1,17 +1,17 @@
-use ray_trace::vector::{Vector, Vector3, Point3D, dot};
+use ray_trace::vector::{Vector, Vector3, Point3D};
 use ray_trace::ray::Ray;
 use ray_trace::ppm::{PPM, RGB};
 
 fn hit_sphere(center: &Point3D, radius: f64, r: &Ray) -> f64 {
     let oc = r.origin - *center;
-    let a = dot(&r.dir, &r.dir);
-    let b = 2.0 * oc.dot(&r.dir);
-    let c = oc.dot(&oc) - (radius*radius);
-    let discriminant = (b*b) - (4.0*a*c);
+    let a = r.dir.sqr_magnitude();
+    let b = oc.dot(&r.dir);
+    let c = oc.sqr_magnitude() - (radius*radius);
+    let discriminant = (b*b) - (a*c);
     if discriminant < 0.0 {
         return -1.0;
     } else {
-        return (-b - discriminant.sqrt() ) / (2.0*a);
+        return (-b - discriminant.sqrt() ) / a;
     }
 
 }
@@ -35,7 +35,7 @@ fn ray_colour(ray: &Ray) -> RGB {
 fn main() {
 
     // IMAGE
-    const IMAGE_WIDTH: u32 = 400;
+    const IMAGE_WIDTH: u32 = 1920;
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
     let mut image = PPM::new(IMAGE_WIDTH as u32, IMAGE_HEIGHT as u32);
