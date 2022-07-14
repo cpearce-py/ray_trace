@@ -2,22 +2,33 @@ use ray_trace::vector::{Vector, Vector3, Point3D, dot};
 use ray_trace::ray::Ray;
 use ray_trace::ppm::{PPM, RGB};
 
-fn hit_sphere(center: &Point3D, radius: f64, r: &Ray) -> bool {
+fn hit_sphere(center: &Point3D, radius: f64, r: &Ray) -> f64 {
     let oc = r.origin - *center;
     let a = dot(&r.dir, &r.dir);
     let b = 2.0 * oc.dot(&r.dir);
     let c = oc.dot(&oc) - (radius*radius);
     let discriminant = (b*b) - (4.0*a*c);
-    discriminant > 0.0
+    if discriminant < 0.0 {
+        return -1.0;
+    } else {
+        return (-b - discriminant.sqrt() ) / (2.0*a);
+    }
+
 }
 
 fn ray_colour(ray: &Ray) -> RGB {
     let sphere_center = Point3D{x:0.0, y:0.0, z:-1.0};
-    if hit_sphere(&sphere_center, 0.5, ray){
-        return RGB{r: 1.0, g:0.0, b:0.0};
+    let mut t = hit_sphere(&sphere_center, 0.5, ray);
+    if t > 0.0 {
+        let n = (ray.at(t) - Vector3{x:0.0, y:0.0, z:-1.0}).normalized();
+        let r = n.x + 1.0;
+        let g = n.y + 1.0;
+        let b = n.z + 1.0;
+        let color = RGB{r, g, b};
+        return color * 0.5;
     }
     let unit_direction = ray.dir.normalized();
-    let t = 0.5 * (unit_direction.y + 1.0);
+    t = 0.5 * (unit_direction.y + 1.0);
     (1.0-t)*RGB{r: 1.0, g:1.0, b:1.0} + t*RGB{r:0.5, g:0.7, b:1.0}
 }
 
