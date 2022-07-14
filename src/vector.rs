@@ -154,6 +154,8 @@ impl Div<Vector3> for f64 {
     }
 }
 
+pub type Point3D = Vector3;
+
 impl Vector for Vector3 {
     type Scalar = f64;
 
@@ -198,7 +200,7 @@ impl Vector for Vector3 {
 
     #[inline]
     fn dot(&self, other: &Self) -> Self::Scalar {
-        self.x * other.x + self.y * other.y
+        self.x * other.x + self.y * other.y + self.z * other.z
     }
 
     fn scale(self, other: Self) -> Self {
@@ -228,7 +230,6 @@ impl Vector for Vector3 {
     }
 }
 
-
-pub fn unit_vector(v: Vector3) -> Vector3 {
-    v / v.magnitude()
+pub fn dot(v1: &Vector3, v2: &Vector3) -> f64 {
+    (v1.x * v2.x) + (v1.y *v2.y) + (v1.z * v2.z)
 }
