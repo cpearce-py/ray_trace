@@ -1,5 +1,14 @@
 // Module for all Vector based things.
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops::{Add, 
+    AddAssign, 
+    Div, 
+    DivAssign, 
+    Mul, 
+    MulAssign, 
+    Sub, 
+    SubAssign,
+    Neg,
+    };
 
 // This is like an ABC
 pub trait Vector:
@@ -151,6 +160,14 @@ impl Div<Vector3> for f64 {
             y: self / other.y,
             z: self / other.z,
         }
+    }
+}
+
+impl Neg for Vector3 {
+    type Output = Self;
+
+    fn neg(self) -> Vector3 {
+        self * -1.0
     }
 }
 
