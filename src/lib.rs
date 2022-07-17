@@ -12,3 +12,6 @@ pub use crate::hittable::*;
 
 pub mod sphere;
 pub use crate::sphere::*;
+
+pub mod camera;
+pub use crate::camera::*;

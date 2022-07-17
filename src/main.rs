@@ -1,8 +1,11 @@
+use rand::*;
+
 use ray_trace::vector::{Vector, Vector3, Point3D};
 use ray_trace::ray::Ray;
 use ray_trace::ppm::{PPM, RGB};
 use ray_trace::sphere::*;
 use ray_trace::hittable::*;
+use ray_trace::camera::*;
 
 const PI: f64 = std::f64::consts::PI;
 
@@ -11,6 +14,18 @@ pub fn degrees_to_radians(degree: f64) -> f64 {
     degree * PI / 180.0
 }
 
+pub fn random() -> f64 {
+    rand::thread_rng().gen()
+}
+
+#[inline]
+pub fn clamp<T>(x: T, min: T, max: T) -> T 
+where T: PartialEq + PartialOrd
+{
+    if x < min { min } 
+    else if x > max { max } 
+    else { x }
+}
 
 #[inline]
 pub fn vec_to_rgb(vec: Vector3) -> RGB {
@@ -31,9 +46,10 @@ fn ray_colour(r: &Ray, world: &HittableList) -> RGB {
 
 
 fn main() {
-
+   
     // IMAGE
-    const IMAGE_WIDTH: u32 = 1920;
+    const SAMPLES_PER_PIXEL: u32 = 100;
+    const IMAGE_WIDTH: u32 = 400;
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
     const IMAGE_HEIGHT: u32 = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as u32;
     let mut image = PPM::new(IMAGE_WIDTH as u32, IMAGE_HEIGHT as u32);
@@ -48,24 +64,20 @@ fn main() {
     world.push(sphere2);
 
     // CAMERA
-    let viewport_height = 2.0;
-    let viewport_width = ASPECT_RATIO * viewport_height;
-    let focal_length = 1.0;
-
-    let origin = Vector3{x: 0.0, y: 0.0, z:0.0};
-    let horizontal = Vector3{x: viewport_width, y: 0.0, z: 0.0};
-    let vertical = Vector3{x:0.0, y: viewport_height, z:0.0};
-    let lower_left_corner = origin - horizontal/2.0 - vertical/2.0 - Vector3{x:0.0, y:0.0, z:focal_length};
+    let camera = Camera::new();
     
     //RENDER
     for j in (0..IMAGE_HEIGHT).rev() {
         println!("\rScanlines remaining: {}", &j);
         for i in 0..IMAGE_WIDTH {
-            let u = i as f64 / (IMAGE_WIDTH-1) as f64;
-            let v = (IMAGE_HEIGHT-j) as f64 / (IMAGE_HEIGHT-1) as f64;
-            let r: Ray = Ray::new(origin, lower_left_corner + u*horizontal + v*vertical - origin);
-            let pixel_color = ray_colour(&r, &world);
-            image.set_pixel(i, j, pixel_color);
+            let mut pixel_color = RGB::new();
+            for _s in 0..SAMPLES_PER_PIXEL {
+                let u = (i as f64 + random())/(IMAGE_WIDTH-1) as f64;
+                let v = ((IMAGE_HEIGHT-j) as f64 + random()) / (IMAGE_HEIGHT-1) as f64;
+                let r = camera.get_ray(u, v);
+                pixel_color += ray_colour(&r, &world);
+            }
+            image.set_pixel(i, j, &mut pixel_color, SAMPLES_PER_PIXEL);
         }
     }   
 
