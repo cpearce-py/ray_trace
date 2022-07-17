@@ -4,46 +4,31 @@ use ray_trace::ppm::{PPM, RGB};
 use ray_trace::sphere::*;
 use ray_trace::hittable::*;
 
-const PI: f64 = f64::consts::PI;
+const PI: f64 = std::f64::consts::PI;
 
-fn hit_sphere(center: &Point3D, radius: f64, r: &Ray) -> f64 {
-    let oc = r.origin - *center;
-    let a = r.dir.sqr_magnitude();
-    let b = oc.dot(&r.dir);
-    let c = oc.sqr_magnitude() - (radius*radius);
-    let discriminant = (b*b) - (a*c);
-    if discriminant < 0.0 {
-        return -1.0;
-    } else {
-        return (-b - discriminant.sqrt() ) / a;
-    }
 
+pub fn degrees_to_radians(degree: f64) -> f64 {
+    degree * PI / 180.0
 }
 
-fn ray_colour<Hittable>(ray: &Ray, world: Hittable) -> RGB {
+
+#[inline]
+pub fn vec_to_rgb(vec: Vector3) -> RGB {
+    RGB{r:vec.x, g:vec.y, b:vec.z}
+}
+
+
+fn ray_colour(r: &Ray, world: &HittableList) -> RGB {
     let mut rec = HitRecord::new();
-    if world.hit(r, 0, f64::INFINITY, rec) {
-        return 0.5 * rec.normal + color(1, 1, 1);
+    if world.hit(r, 0.0, f64::INFINITY, &mut rec) {
+        let vec_rgb = vec_to_rgb(rec.normal);
+        return 0.5 * (vec_rgb + RGB{r:1.0, g:1.0, b:1.0});
     }
-    let unit_direction = ray.dir.normalized();
+    let unit_direction = r.dir.normalized();
     let t = 0.5 * (unit_direction.y + 1.0);
     (1.0-t) * RGB{r:1.0, g:1.0, b:1.0} + t*RGB{r:0.5, g:0.7, b:1.0}
 }
-//fn ray_colour(ray: &Ray) -> RGB {
-//    let sphere_center = Point3D{x:0.0, y:0.0, z:-1.0};
-//    let mut t = hit_sphere(&sphere_center, 0.5, ray);
-//    if t > 0.0 {
-//        let n = (ray.at(t) - Vector3{x:0.0, y:0.0, z:-1.0}).normalized();
-//        let r = n.x + 1.0;
-//        let g = n.y + 1.0;
-//        let b = n.z + 1.0;
-//        let color = RGB{r, g, b};
-//        return color * 0.5;
-//    }
-//    let unit_direction = ray.dir.normalized();
-//    t = 0.5 * (unit_direction.y + 1.0);
-//    (1.0-t)*RGB{r: 1.0, g:1.0, b:1.0} + t*RGB{r:0.5, g:0.7, b:1.0}
-//}
+
 
 fn main() {
 
@@ -55,8 +40,12 @@ fn main() {
 
     // WORLD
     let mut world = HittableList::new();
-    let sphere1 = Sphere::new();
+    let center1 = Point3D{x:0.0, y:0.0, z:-1.0};
+    let sphere1 = Sphere{center: center1, radius:0.5};
+    let center2 = Point3D{x:0.0, y:-100.5, z:-1.0};
+    let sphere2 = Sphere{center: center2, radius:100.0};
     world.push(sphere1);
+    world.push(sphere2);
 
     // CAMERA
     let viewport_height = 2.0;
@@ -70,11 +59,12 @@ fn main() {
     
     //RENDER
     for j in (0..IMAGE_HEIGHT).rev() {
+        println!("\rScanlines remaining: {}", &j);
         for i in 0..IMAGE_WIDTH {
             let u = i as f64 / (IMAGE_WIDTH-1) as f64;
             let v = (IMAGE_HEIGHT-j) as f64 / (IMAGE_HEIGHT-1) as f64;
             let r: Ray = Ray::new(origin, lower_left_corner + u*horizontal + v*vertical - origin);
-            let pixel_color = ray_colour(&r);
+            let pixel_color = ray_colour(&r, &world);
             image.set_pixel(i, j, pixel_color);
         }
     }   

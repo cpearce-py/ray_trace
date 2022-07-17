@@ -3,6 +3,8 @@ use std::io::Write;
 use std::fs::File;
 use std::ops::{Add, Mul};
 
+use crate::vector::*;
+
 #[derive(Debug)]
 pub struct RGB{
     pub r: f64,

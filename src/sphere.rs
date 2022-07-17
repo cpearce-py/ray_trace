@@ -31,7 +31,7 @@ impl Sphere {
 
 impl Hittable for Sphere {
 
-    fn hit(self, r: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
+    fn hit(&self, r: &Ray, t_min: f64, t_max: f64, rec: &mut HitRecord) -> bool {
 
         let oc = r.origin - self.center;
         let a = r.dir.sqr_magnitude();
@@ -54,6 +54,7 @@ impl Hittable for Sphere {
         rec.set_face_normal(r, outward_normal);
         true
     }
+
 }
 
 
