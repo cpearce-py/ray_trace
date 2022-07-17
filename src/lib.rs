@@ -15,3 +15,6 @@ pub use crate::sphere::*;
 
 pub mod camera;
 pub use crate::camera::*;
+
+pub mod utils;
+pub use crate::utils::*;

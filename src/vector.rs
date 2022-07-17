@@ -10,6 +10,9 @@ use std::ops::{Add,
     Neg,
     };
 
+use crate::utils::random;
+use rand::*;
+
 // This is like an ABC
 pub trait Vector:
     Add
@@ -64,6 +67,25 @@ impl Vector3 {
 
     pub fn distance(&self, other: &Self) -> f64 {
         (*self - *other).magnitude()
+    }
+
+    pub fn random() -> Self {
+        Vector3{x: random(), y: random(), z: random()}
+    }
+
+    pub fn rnd_range(min: f64, max: f64) -> Self {
+        let x = rand::thread_rng().gen_range(min..max);
+        let y = rand::thread_rng().gen_range(min..max);
+        let z = rand::thread_rng().gen_range(min..max);
+        Vector3{x, y, z}
+    }
+
+    pub fn random_in_unit_sphere() -> Self {
+        loop {
+            let p = Self::rnd_range(-1.0, 1.0);
+            if p.magnitude() >= 1.0 { continue }
+            return p;
+        } 
     }
 }
 
@@ -215,7 +237,6 @@ impl Vector for Vector3 {
         }
     }
 
-    #[inline]
     fn dot(&self, other: &Self) -> Self::Scalar {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
@@ -249,4 +270,8 @@ impl Vector for Vector3 {
 
 pub fn dot(v1: &Vector3, v2: &Vector3) -> f64 {
     (v1.x * v2.x) + (v1.y *v2.y) + (v1.z * v2.z)
+}
+
+pub fn random_vec() {
+ 
 }
